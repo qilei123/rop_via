@@ -509,19 +509,19 @@
       <!-- Navigation menu -->
       <div class="navbar">
         <ul>
-          <li><a onclick="show_home_panel()" title="Home">Home</a></li>
-          <li class="dropdown"><a title="Image" class="drop_menu_item">Image &#9662;</a>
+          <li><a onclick="show_home_panel()" title="Home">主页</a></li>
+          <li class="dropdown"><a title="Image" class="drop_menu_item">图片 &#9662;</a>
             <div class="dropdown-content">
-              <a onclick="sel_local_images()" title="Load (or add) a set of images from local disk">Load or Add Images</a>
-              <a onclick="show_img_list()" title="Browse currently loaded images">List Images</a>
+              <a onclick="sel_local_images()" title="Load (or add) a set of images from local disk">加载或添加图片</a>
+              <a onclick="show_img_list()" title="Browse currently loaded images">显示图片列表</a>
             </div>
           </li>
-          <li class="dropdown"><a title="Annotations" class="drop_menu_item">Annotation &#9662;</a>
+          <li class="dropdown"><a title="Annotations" class="drop_menu_item">标注 &#9662;</a>
             <div class="dropdown-content">
-              <a onclick="show_annotation_data()" title="View annotations">View annotations</a>
-              <a onclick="download_all_region_data('csv')" title="Save image region annotations as a CSV(comma separated value) file">Save as CSV</a>
-              <a onclick="download_all_region_data('json')" title="Save image region annotations as a JSON(Javascript Object Notation) file">Save as JSON</a>
-              <a onclick="sel_local_data_file('annotations')" title="Import existing region data from CSV or JSON file">Import</a>
+              <a onclick="show_annotation_data()" title="View annotations">查看标注</a>
+              <a onclick="download_all_region_data('csv')" title="Save image region annotations as a CSV(comma separated value) file">存为CVS格式</a>
+              <a onclick="download_all_region_data('json')" title="Save image region annotations as a JSON(Javascript Object Notation) file">存为JSON格式</a>
+              <a onclick="sel_local_data_file('annotations')" title="Import existing region data from CSV or JSON file">导入标注文件</a>
             </div>
           </li>
           <li class="dropdown"><a title="View" class="drop_menu_item">View &#9662;</a>
