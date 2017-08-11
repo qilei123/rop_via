@@ -728,8 +728,6 @@
         <script type="text/javascript">
           function getchecked()
           {
-                      createTreeviewForRopLabel('#tree_diagnosis', 'D010.D106,D002.A001.Z002,D004,D004.G001,D004.G001.M001');
-
               var l =  getRopDiagnosisFromTreeView('#tree_diagnosis');
               labels_list = l.split(',');
               update_image_label(_via_img_metadata[_via_image_id], labels_list);
@@ -3273,7 +3271,7 @@ function draw_all_region_id() {
     if ( r.size === 1 && w > (2*char_width) ) {
       // show the attribute value
       for (var key of r.keys()) {
-        annotation_str = r.get(key);
+        annotation_str = String(i + 1) + ': ' + r.get(key);
       }
       var strw = _via_reg_ctx.measureText(annotation_str).width;
 
