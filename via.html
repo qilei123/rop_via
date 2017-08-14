@@ -3268,7 +3268,12 @@ function draw_all_region_id() {
     var char_height = 1.8 * char_width;
 
     var r = _via_img_metadata[_via_image_id].regions[i].region_attributes;
-    if ( r.size === 1 && w > (2*char_width) ) {
+    if(r.size>=1)
+	for (var key of r.keys()) {
+      annotation_str = String(i + 1) + ': ' + r.get(key);
+    }
+	if ( r.size === 1 && w > (2*char_width) ) {
+	//if ( r.size >=1 ) {
       // show the attribute value
       for (var key of r.keys()) {
         annotation_str = String(i + 1) + ': ' + r.get(key);
@@ -3299,12 +3304,13 @@ function draw_all_region_id() {
     _via_reg_ctx.globalAlpha = 0.8;
     _via_reg_ctx.fillRect(Math.floor(x),
                           Math.floor(y - 1.1*char_height),
-                          Math.floor(bgnd_rect_width),
+                          Math.floor((annotation_str.length+1)*char_width*0.5),
                           Math.floor(char_height));
 
     // then, draw text over this background rectangle
     _via_reg_ctx.globalAlpha = 1.0;
     _via_reg_ctx.fillStyle = 'yellow';
+	console.log(annotation_str);
     _via_reg_ctx.fillText(annotation_str,
                           Math.floor(x + 0.4*char_width),
                           Math.floor(y - 0.35*char_height));
