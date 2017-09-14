@@ -25,14 +25,15 @@
         CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
         ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
         POSSIBILITY OF SUCH DAMAGE.
+
+        Modified by zys in 2017 (zhangys@zjgsu.edu.cn)
       -->
     <title>VGG Image Annotator 1.0.1</title>
     <meta name="author" content="Abhishek Dutta">
     <meta name="description" content="VIA is a standalone image annotator application packaged as a single HTML file (< 200 KB) that runs on most modern web browsers.">
 
     <link href="css" rel="stylesheet"/>
-
-    <script src="jquery"></script>
+    <script type="text/javascript" src="jquery"></script>
 
     <!--
     Development of VIA is supported by the EPSRC programme grant
@@ -186,8 +187,8 @@
       }
       #leftsidebar_collapse_button {
       background-color: black;
-      width: 10px;
-      height: 25px;
+      width: 18px;
+      height: 36px;
       color: white;
       padding: 0.2em;
       border-radius: 0px 5px 5px 0px;
@@ -475,9 +476,13 @@
           <title>Polyline region shape</title>
           <path d="M 15.25,2.2372 3.625,11.6122 6,29.9872 l 20.75,-9.625 2.375,-14.75 z" stroke-width="2"/>
         </symbol>
-        <symbol id="shape_point">
-          <title>Point region shape</title>
-          <circle r="3" cx="16" cy="16" stroke-width="2"/>
+        <symbol id="shape_small_circle">
+          <title>Small circle region shape</title>
+          <circle r="8" cx="16" cy="16" stroke-width="2"/>
+        </symbol>
+        <symbol id="shape_big_circle">
+          <title>Big circle region shape</title>
+          <circle r="15" cx="16" cy="16" stroke-width="2"/>
         </symbol>
       </defs>
     </svg>
@@ -501,15 +506,16 @@
               <a onclick="sel_local_data_file('annotations')" title="Import existing region data from CSV or JSON file">导入标注文件</a>
             </div>
           </li>
-          <li class="dropdown"><a title="View" class="drop_menu_item">View &#9662;</a>
+          <li class="dropdown"><a title="View" class="drop_menu_item">视图 &#9662;</a>
             <div class="dropdown-content">
               <a onclick="toggle_leftsidebar()" title="Show/hide left sidebar">Show/hide left sidebar</a>
               <a onclick="toggle_region_boundary_visibility()" title="Show or hide region boundaries">Show/hide region boundaries</a>
               <a onclick="toggle_region_id_visibility()" title="Show or hide region labels">Show/hide region labels</a>
             </div>
           </li>
-          <li class="dropdown"><a onclick="show_about_panel()" title="Help">Help &#9662;</a>
+          <li class="dropdown"><a onclick="show_about_panel()" title="Help">帮助 &#9662;</a>
             <div class="dropdown-content">
+                <a href="Annotate_Offline_Tool.docx">帮助文件</a>
               <a onclick="show_getting_started_panel()" title="Getting started with VGG Image Annotator (VIA)">Getting Started</a>
               <a onclick="show_license_panel()" title="VIA License">License</a>
               <a onclick="show_about_panel()" title="About VGG Image Annotator (VIA)">About</a>
@@ -553,9 +559,10 @@
           <ul class="region_shape">
             <li id="region_shape_rect" class="selected" onclick="select_region_shape('rect')" title="Rectangle"><svg height="32" viewbox="0 0 32 32"><use xlink:href="#shape_rectangle"></use></svg></li>
             <li id="region_shape_circle" onclick="select_region_shape('circle')" title="Circle"><svg height="32" viewbox="0 0 32 32"><use xlink:href="#shape_circle"></use></svg></li>
-            <li id="region_shape_ellipse" onclick="select_region_shape('ellipse')" title="Ellipse"><svg height="32" viewbox="0 0 32 32"><use xlink:href="#shape_ellipse"></use></svg></li>
+            <!--<li id="region_shape_ellipse" onclick="select_region_shape('ellipse')" title="Ellipse"><svg height="32" viewbox="0 0 32 32"><use xlink:href="#shape_ellipse"></use></svg></li>-->
             <li id="region_shape_polygon" onclick="select_region_shape('polygon')" title="Polygon"><svg height="32" viewbox="0 0 32 32"><use xlink:href="#shape_polygon"></use></svg></li>
-            <li id="region_shape_point" onclick="select_region_shape('point')" title="Point"><svg height="32" viewbox="0 0 32 32"><use xlink:href="#shape_point"></use></svg></li>
+            <li id="region_shape_small_circle" onclick="select_region_shape('small_circle')" title="Small_circle"><svg height="32" viewbox="0 0 32 32"><use xlink:href="#shape_small_circle"></use></svg></li>
+            <li id="region_shape_big_circle" onclick="select_region_shape('big_circle')" title="Big_circle"><svg height="32" viewbox="0 0 32 32"><use xlink:href="#shape_big_circle"></use></svg></li>
           </ul>
         </div>
 
@@ -807,17 +814,20 @@ var VIA_NAME         = 'VGG Image Annotator';
 var VIA_SHORT_NAME   = 'VIA';
 var VIA_REGION_SHAPE = { RECT:'rect',
                          CIRCLE:'circle',
-                         ELLIPSE:'ellipse',
+                        // ELLIPSE:'ellipse',
                          POLYGON:'polygon',
-                         POINT:'point'};
-var VIA_REGION_EDGE_TOL           = 5;   // pixel
-var VIA_REGION_CONTROL_POINT_SIZE = 2;
-var VIA_REGION_POINT_RADIUS       = 3;
-var VIA_POLYGON_VERTEX_MATCH_TOL  = 5;
-var VIA_REGION_MIN_DIM            = 3;
-var VIA_MOUSE_CLICK_TOL           = 2;
-var VIA_ELLIPSE_EDGE_TOL          = 0.2; // euclidean distance
-var VIA_THETA_TOL                 = Math.PI/18; // 10 degrees
+                         POINT:'small_circle',     //Point refer to small circle
+                         BIG_CIRCLE:'big_circle'};
+var VIA_REGION_EDGE_TOL            = 5;   // pixel
+var VIA_REGION_CONTROL_POINT_SIZE  = 2;
+var VIA_REGION_POINT_RADIUS        = 3;
+var VIA_REGION_SMALL_CIRCLE_RADIUS = 15;
+var VIA_REGION_BIG_CIRCLE_RADIUS   = 35;
+var VIA_POLYGON_VERTEX_MATCH_TOL   = 5;
+var VIA_REGION_MIN_DIM             = 3;
+var VIA_MOUSE_CLICK_TOL            = 2;
+var VIA_ELLIPSE_EDGE_TOL           = 0.2; // euclidean distance
+var VIA_THETA_TOL                  = Math.PI/18; // 10 degrees
 var VIA_POLYGON_RESIZE_VERTEX_OFFSET    = 100;
 var VIA_CANVAS_DEFAULT_ZOOM_LEVEL_INDEX = 3;
 var VIA_CANVAS_ZOOM_LEVELS = [0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 2.5, 3.0, 4, 5];
@@ -917,7 +927,7 @@ var BBOX_BOUNDARY_FILL_COLOR_NEW       = "#aaeeff";
 var BBOX_BOUNDARY_LINE_COLOR           = "#1a1a1a";
 var BBOX_SELECTED_FILL_COLOR           = "#ffffff";
 var attributes_list = new Array("default","Fovea","Macula","Stage 1: demarcation line","Stage 2: ridge",
-    "Stage 3: ridge with neovascularization","bleeding","artifact","carcinoma");
+    "Stage 3: ridge with neovascularization", "bleeding", "artifact", "carcinoma", "OpticDisk", "Laser Photocoagulation Spot", "proliferation", "Retina detachment");
 //
 // Data structure for annotations
 //
@@ -965,7 +975,7 @@ function show_home_panel() {
     show_all_canvas();
     set_all_text_panel_display('none');
   } else {
-    var start_info = '<p><a title="Load or Add Images" style="cursor: pointer; color: blue;" onclick="sel_local_images()">Load images</a> to start annotation or, see <a title="Getting started with VGG Image Annotator" style="cursor: pointer; color: blue;" onclick="show_getting_started_panel()">Getting Started</a>.</p>';
+    var start_info = '<p><a title="Load or Add Images" style="cursor: pointer; color: blue;" onclick="sel_local_images()">加载图片</a>，开始标注。打开<a title="Getting started with VGG Image Annotator" style="cursor: pointer; color: blue;" href="Annotate_Offline_Tool.docx">帮助文件</a>.</p>';
     clear_image_display_area();
     document.getElementById('via_start_info_panel').innerHTML = start_info;
     document.getElementById('via_start_info_panel').style.display = 'block';
@@ -1736,6 +1746,12 @@ function _via_load_canvas_regions() {
       _via_canvas_regions[i].shape_attributes.set('cx', Math.round(cx));
       _via_canvas_regions[i].shape_attributes.set('cy', Math.round(cy));
       break;
+    case VIA_REGION_SHAPE.BIG_CIRCLE:
+      var cx = regions[i].shape_attributes.get('cx') / _via_canvas_scale;
+      var cy = regions[i].shape_attributes.get('cy') / _via_canvas_scale;
+      _via_canvas_regions[i].shape_attributes.set('cx', Math.round(cx));
+      _via_canvas_regions[i].shape_attributes.set('cy', Math.round(cy));
+      break;
     }
   }
 }
@@ -1762,7 +1778,9 @@ function select_region_shape(sel_shape_name) {
                  'click first vertex to close path');
     break;
   case VIA_REGION_SHAPE.POINT:
-    show_message('Press single click to define points (or landmarks)');
+    show_message('Press single click to define circles (or landmarks)');
+  case VIA_REGION_SHAPE.BIG_CIRCLE:
+    show_message('Press single click to define circles (or landmarks)');
     break;
   default:
     show_message('Unknown shape selected!');
@@ -1987,7 +2005,8 @@ _via_reg_canvas.addEventListener('mousedown', function(e) {
     if ( region_id === -1 ) {
       // mousedown outside a region
       if (_via_current_shape !== VIA_REGION_SHAPE.POLYGON &&
-          _via_current_shape !== VIA_REGION_SHAPE.POINT) {
+          _via_current_shape !== VIA_REGION_SHAPE.POINT &&
+          _via_current_shape !== VIA_REGION_SHAPE.BIG_CIRCLE) {
         // this is a bounding box drawing event
         _via_is_user_drawing_region = true;
       }
@@ -2030,6 +2049,16 @@ _via_reg_canvas.addEventListener('mouseup', function(e) {
       case VIA_REGION_SHAPE.CIRCLE:
       case VIA_REGION_SHAPE.ELLIPSE:
       case VIA_REGION_SHAPE.POINT:
+        var cxnew = image_attr.get('cx') + Math.round(move_x * _via_canvas_scale);
+        var cynew = image_attr.get('cy') + Math.round(move_y * _via_canvas_scale);
+        image_attr.set('cx', cxnew);
+        image_attr.set('cy', cynew);
+        var canvas_xnew = canvas_attr.get('cx') + move_x;
+        var canvas_ynew = canvas_attr.get('cy') + move_y;
+        canvas_attr.set('cx', canvas_xnew);
+        canvas_attr.set('cy', canvas_ynew);
+        break;
+      case VIA_REGION_SHAPE.BIG_CIRCLE:
         var cxnew = image_attr.get('cx') + Math.round(move_x * _via_canvas_scale);
         var cynew = image_attr.get('cy') + Math.round(move_y * _via_canvas_scale);
         image_attr.set('cx', cxnew);
@@ -2270,6 +2299,21 @@ _via_reg_canvas.addEventListener('mouseup', function(e) {
             _via_img_metadata[_via_image_id].regions.push(point_region);
             var canvas_point_region = new ImageRegion();
             canvas_point_region.shape_attributes.set('name', VIA_REGION_SHAPE.POINT);
+            canvas_point_region.shape_attributes.set('cx', Math.round(_via_click_x0));
+            canvas_point_region.shape_attributes.set('cy', Math.round(_via_click_y0));
+            _via_canvas_regions.push(canvas_point_region);
+            update_attributes_panel();
+            save_current_data_to_browser_cache();
+            break;
+          case VIA_REGION_SHAPE.BIG_CIRCLE:
+            // user has marked a landmark point
+            var point_region = new ImageRegion();
+            point_region.shape_attributes.set('name', VIA_REGION_SHAPE.BIG_CIRCLE);
+            point_region.shape_attributes.set('cx', Math.round(_via_click_x0 * _via_canvas_scale));
+            point_region.shape_attributes.set('cy', Math.round(_via_click_y0 * _via_canvas_scale));
+            _via_img_metadata[_via_image_id].regions.push(point_region);
+            var canvas_point_region = new ImageRegion();
+            canvas_point_region.shape_attributes.set('name', VIA_REGION_SHAPE.BIG_CIRCLE);
             canvas_point_region.shape_attributes.set('cx', Math.round(_via_click_x0));
             canvas_point_region.shape_attributes.set('cy', Math.round(_via_click_y0));
             _via_canvas_regions.push(canvas_point_region);
@@ -2616,8 +2660,14 @@ _via_reg_canvas.addEventListener('mousemove', function(e) {
     case VIA_REGION_SHAPE.POINT:
       _via_draw_point_region(attr.get('cx') + move_x,
                              attr.get('cy') + move_y,
+                             VIA_REGION_SMALL_CIRCLE_RADIUS,
                              true);
       break;
+    case VIA_REGION_SHAPE.BIG_CIRCLE:
+      _via_draw_point_region(attr.get('cx') + move_x,
+                             attr.get('cy') + move_y,
+                             VIA_REGION_BIG_CIRCLE_RADIUS,
+                             true);
     }
     _via_reg_canvas.focus();
     return;
@@ -2692,6 +2742,13 @@ function draw_all_regions() {
     case VIA_REGION_SHAPE.POINT:
       _via_draw_point_region(attr.get('cx'),
                              attr.get('cy'),
+                             VIA_REGION_SMALL_CIRCLE_RADIUS,
+                             is_selected);
+      break;
+    case VIA_REGION_SHAPE.BIG_CIRCLE:
+      _via_draw_point_region(attr.get('cx'),
+                             attr.get('cy'),
+                             VIA_REGION_BIG_CIRCLE_RADIUS,
                              is_selected);
       break;
     }
@@ -2893,9 +2950,9 @@ function _via_draw_polygon_region(all_points_x, all_points_y, is_selected) {
     }
   }
 }
-function _via_draw_point_region(cx, cy, is_selected) {
+function _via_draw_point_region(cx, cy, r, is_selected) {
   if (is_selected) {
-    _via_draw_point(cx, cy, VIA_REGION_POINT_RADIUS);
+    _via_draw_point(cx, cy, r);
     _via_reg_ctx.strokeStyle = VIA_THEME_SEL_REGION_FILL_BOUNDARY_COLOR;
     _via_reg_ctx.lineWidth   = VIA_THEME_REGION_BOUNDARY_WIDTH/2;
     _via_reg_ctx.stroke();
@@ -2907,16 +2964,16 @@ function _via_draw_point_region(cx, cy, is_selected) {
     // draw a fill line
     _via_reg_ctx.strokeStyle = VIA_THEME_BOUNDARY_FILL_COLOR;
     _via_reg_ctx.lineWidth   = VIA_THEME_REGION_BOUNDARY_WIDTH/2;
-    _via_draw_point(cx, cy, VIA_REGION_POINT_RADIUS);
+    _via_draw_point(cx, cy, r);
     _via_reg_ctx.stroke();
     // draw a boundary line on both sides of the fill line
     _via_reg_ctx.strokeStyle = VIA_THEME_BOUNDARY_LINE_COLOR;
     _via_reg_ctx.lineWidth   = VIA_THEME_REGION_BOUNDARY_WIDTH/4;
     _via_draw_point(cx, cy,
-                    VIA_REGION_POINT_RADIUS - VIA_THEME_REGION_BOUNDARY_WIDTH/2);
+                    r - VIA_THEME_REGION_BOUNDARY_WIDTH/2);
     _via_reg_ctx.stroke();
     _via_draw_point(cx, cy,
-                    VIA_REGION_POINT_RADIUS + VIA_THEME_REGION_BOUNDARY_WIDTH/2);
+                    r + VIA_THEME_REGION_BOUNDARY_WIDTH/2);
     _via_reg_ctx.stroke();
   }
 }
@@ -3032,11 +3089,17 @@ function get_region_bounding_box(region) {
     bbox[2] = maxx;
     bbox[3] = maxy;
     break;
-  case 'point':
-    bbox[0] = d.get('cx') - VIA_REGION_POINT_RADIUS;
-    bbox[1] = d.get('cy') - VIA_REGION_POINT_RADIUS;
-    bbox[2] = d.get('cx') + VIA_REGION_POINT_RADIUS;
-    bbox[3] = d.get('cy') + VIA_REGION_POINT_RADIUS;
+  case 'small_circle':
+    bbox[0] = d.get('cx') - VIA_REGION_SMALL_CIRCLE_RADIUS;
+    bbox[1] = d.get('cy') - VIA_REGION_SMALL_CIRCLE_RADIUS;
+    bbox[2] = d.get('cx') + VIA_REGION_SMALL_CIRCLE_RADIUS;
+    bbox[3] = d.get('cy') + VIA_REGION_SMALL_CIRCLE_RADIUS;
+    break;
+  case 'big_circle':
+    bbox[0] = d.get('cx') - VIA_REGION_BIG_CIRCLE_RADIUS;
+    bbox[1] = d.get('cy') - VIA_REGION_BIG_CIRCLE_RADIUS;
+    bbox[2] = d.get('cx') + VIA_REGION_BIG_CIRCLE_RADIUS;
+    bbox[3] = d.get('cy') + VIA_REGION_BIG_CIRCLE_RADIUS;
     break;
   }
   return bbox;
@@ -3101,6 +3164,11 @@ function is_inside_this_region(px, py, region_id) {
                                px, py);
     break;
   case VIA_REGION_SHAPE.POINT:
+    result = is_inside_point(attr.get('cx'),
+                             attr.get('cy'),
+                             px, py);
+    break;
+  case VIA_REGION_SHAPE.BIG_CIRCLE:
     result = is_inside_point(attr.get('cx'),
                              attr.get('cy'),
                              px, py);
@@ -3214,6 +3282,9 @@ function is_on_region_corner(px, py) {
                                     px, py);
       break;
     case VIA_REGION_SHAPE.POINT:
+      // since there are no edges of a point
+      result = 0;
+    case VIA_REGION_SHAPE.BIG_CIRCLE:
       // since there are no edges of a point
       result = 0;
     }
@@ -3946,7 +4017,7 @@ function init_spreadsheet_input(type, col_headers, data, row_names) {
       region_id_cell.style.width      = '2em';
       var input_id = type[0] + '#' + key + '#' + rowi;
 		console.log("row_names[rowi]"+row_names[rowi]);
-      var list_selected = new Array(9);
+      var list_selected = new Array(11);
       var r = _via_img_metadata[_via_image_id].regions[rowi].region_attributes;
 	  var opt_value;
 
@@ -3957,30 +4028,33 @@ function init_spreadsheet_input(type, col_headers, data, row_names) {
 	if(r.size>=1){
 	  	for (var key of r.keys()) {
 			opt_value = r.get(key);
-		}
-	 
-	  	console.log(opt_value);
-    for(var opts_index=0;opts_index<9;opts_index++){
-	  //console.log(opt_value);
-      if(attributes_list[opts_index]==opt_value){
-        
-        list_selected[opts_index] = 'selected';
-        //console.log(opts_index);
-        //console.log(list_selected[opts_index]);
-      }
-    }
+		}	 
+        console.log(opt_value);
+
+        for (var opts_index = 0; opts_index < attributes_list.length; opts_index++){
+            //console.log(opt_value);
+            if (attributes_list[opts_index] == opt_value) {
+                list_selected[opts_index] = 'selected';
+                //console.log(opts_index);
+                //console.log(list_selected[opts_index]);
+            }
+        }
     }
     
       row.insertCell(-1).innerHTML = '<select onchange="update_attribute_value(\'' + input_id + '\', this.value)">' +
                                       '<option value="default"'+list_selected[0]+'>选择一个标签</option>' +
-                                      '<option value="Fovea"'+list_selected[1]+'>Fovea</option>' +
-                                      '<option value="Macula"'+list_selected[2]+'>Macula</option>' + 
+          '<option value="Fovea"' + list_selected[1] + '>Fovea</option>' +
+          '<option value="Macula"' + list_selected[2] + '>Macula</option>' + 
+          '<option value="OpticDisk"' + list_selected[9] + '>OpticDisk</option>' + 
                                       '<option value="Stage 1: demarcation line"'+list_selected[3]+'>Stage 1: demarcation line</option>' +
                                       '<option value="Stage 2: ridge"'+list_selected[4]+'>Stage 2: ridge</option>' +                                    
                                       '<option value="Stage 3: ridge with neovascularization"'+list_selected[5]+'>Stage 3: ridge with neovascularization</option>' + 
                                       '<option value="bleeding"'+list_selected[6]+'>bleeding</option>' +
                                       '<option value="artifact"'+list_selected[7]+'>artifact</option>' +
-                                      '<option value="carcinoma"'+list_selected[8]+'>carcinoma</option>' +
+                                      '<option value="carcinoma"' + list_selected[8] + '>carcinoma</option>' +
+                                      '<option value="Laser Photocoagulation Spot"' + list_selected[10] + '>Laser Photocoagulation Spot</option>' +
+                                      '<option value="proliferation"' + list_selected[11] + '>proliferation</option>' + 
+                                      '<option value="Retina detachment"' + list_selected[12] + '>Retina detachment</option>' +
                                       '</select>';
       if (data[rowi].is_user_selected) {
         region_id_cell.style.backgroundColor = '#5599FF';
