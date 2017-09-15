@@ -187,7 +187,7 @@
       }
       #leftsidebar_collapse_button {
       background-color: black;
-      width: 18px;
+      width: 16px;
       height: 36px;
       color: white;
       padding: 0.2em;
@@ -821,8 +821,8 @@ var VIA_REGION_SHAPE = { RECT:'rect',
 var VIA_REGION_EDGE_TOL            = 5;   // pixel
 var VIA_REGION_CONTROL_POINT_SIZE  = 2;
 var VIA_REGION_POINT_RADIUS        = 3;
-var VIA_REGION_SMALL_CIRCLE_RADIUS = 15;
-var VIA_REGION_BIG_CIRCLE_RADIUS   = 35;
+var VIA_REGION_SMALL_CIRCLE_RADIUS = 60;
+var VIA_REGION_BIG_CIRCLE_RADIUS   = 80;
 var VIA_POLYGON_VERTEX_MATCH_TOL   = 5;
 var VIA_REGION_MIN_DIM             = 3;
 var VIA_MOUSE_CLICK_TOL            = 2;
@@ -1616,7 +1616,22 @@ function show_image(image_index) {
       _via_is_region_selected = false;
       _via_user_sel_region_id = -1;
       _via_current_image_width = _via_current_image.naturalWidth;
+
       _via_current_image_height = _via_current_image.naturalHeight;
+	  
+	  //add by cql
+	  
+	  	  console.log("naturalWidth:"+VIA_REGION_SMALL_CIRCLE_RADIUS*_via_current_image.naturalWidth/1600);
+	  if(_via_current_image.naturalWidth<1000){
+		VIA_REGION_SMALL_CIRCLE_RADIUS  = VIA_REGION_SMALL_CIRCLE_RADIUS*_via_current_image.naturalWidth/1600+15;
+		VIA_REGION_BIG_CIRCLE_RADIUS = VIA_REGION_BIG_CIRCLE_RADIUS *_via_current_image.naturalWidth/1600+20;
+	  }else{
+	  	VIA_REGION_SMALL_CIRCLE_RADIUS  = VIA_REGION_SMALL_CIRCLE_RADIUS*_via_current_image.naturalWidth/1600+15;
+		VIA_REGION_BIG_CIRCLE_RADIUS = VIA_REGION_BIG_CIRCLE_RADIUS *_via_current_image.naturalWidth/1600+20;
+	  }
+	  
+	  //add by cql end
+	  
       // set the size of canvas
       // based on the current dimension of browser window
       var de = document.documentElement;
@@ -1642,6 +1657,9 @@ function show_image(image_index) {
       _via_canvas_scale = _via_current_image.naturalWidth / _via_canvas_width;
       _via_canvas_scale_without_zoom = _via_canvas_scale;
       set_all_canvas_size(_via_canvas_width, _via_canvas_height);
+	  
+	  //console.log("_via_canvas_width:"+_via_canvas_width);
+	  
       //set_all_canvas_scale(_via_canvas_scale_without_zoom);
       // ensure that all the canvas are visible
       clear_image_display_area();
@@ -1650,6 +1668,7 @@ function show_image(image_index) {
       _via_img_ctx.clearRect(0, 0, _via_canvas_width, _via_canvas_height);
       _via_img_ctx.drawImage(_via_current_image, 0, 0,
                              _via_canvas_width, _via_canvas_height);
+	
       // refresh the attributes panel
       update_attributes_panel();
       _via_load_canvas_regions(); // image to canvas space transform
@@ -2022,6 +2041,9 @@ _via_reg_canvas.addEventListener('mousedown', function(e) {
 //  - new region drawing (including polygon)
 //  - moving/resizing/select/unselect existing region
 _via_reg_canvas.addEventListener('mouseup', function(e) {
+    if( !_via_is_reg_attr_panel_visible ) {
+      toggle_reg_attr_panel();
+    }
   _via_click_x1 = e.offsetX; _via_click_y1 = e.offsetY;
   var click_dx = Math.abs(_via_click_x1 - _via_click_x0);
   var click_dy = Math.abs(_via_click_y1 - _via_click_y0);
@@ -2660,13 +2682,13 @@ _via_reg_canvas.addEventListener('mousemove', function(e) {
     case VIA_REGION_SHAPE.POINT:
       _via_draw_point_region(attr.get('cx') + move_x,
                              attr.get('cy') + move_y,
-                             VIA_REGION_SMALL_CIRCLE_RADIUS,
+                             VIA_REGION_SMALL_CIRCLE_RADIUS / _via_canvas_scale,
                              true);
       break;
     case VIA_REGION_SHAPE.BIG_CIRCLE:
       _via_draw_point_region(attr.get('cx') + move_x,
                              attr.get('cy') + move_y,
-                             VIA_REGION_BIG_CIRCLE_RADIUS,
+                             VIA_REGION_BIG_CIRCLE_RADIUS / _via_canvas_scale,
                              true);
     }
     _via_reg_canvas.focus();
@@ -2742,13 +2764,13 @@ function draw_all_regions() {
     case VIA_REGION_SHAPE.POINT:
       _via_draw_point_region(attr.get('cx'),
                              attr.get('cy'),
-                             VIA_REGION_SMALL_CIRCLE_RADIUS,
+                             VIA_REGION_SMALL_CIRCLE_RADIUS / _via_canvas_scale,
                              is_selected);
       break;
     case VIA_REGION_SHAPE.BIG_CIRCLE:
       _via_draw_point_region(attr.get('cx'),
                              attr.get('cy'),
-                             VIA_REGION_BIG_CIRCLE_RADIUS,
+                             VIA_REGION_BIG_CIRCLE_RADIUS / _via_canvas_scale,
                              is_selected);
       break;
     }
@@ -2951,6 +2973,7 @@ function _via_draw_polygon_region(all_points_x, all_points_y, is_selected) {
   }
 }
 function _via_draw_point_region(cx, cy, r, is_selected) {
+
   if (is_selected) {
     _via_draw_point(cx, cy, r);
     _via_reg_ctx.strokeStyle = VIA_THEME_SEL_REGION_FILL_BOUNDARY_COLOR;
@@ -2970,10 +2993,10 @@ function _via_draw_point_region(cx, cy, r, is_selected) {
     _via_reg_ctx.strokeStyle = VIA_THEME_BOUNDARY_LINE_COLOR;
     _via_reg_ctx.lineWidth   = VIA_THEME_REGION_BOUNDARY_WIDTH/4;
     _via_draw_point(cx, cy,
-                    r - VIA_THEME_REGION_BOUNDARY_WIDTH/2);
+                    Math.abs(r - VIA_THEME_REGION_BOUNDARY_WIDTH/2));
     _via_reg_ctx.stroke();
     _via_draw_point(cx, cy,
-                    r + VIA_THEME_REGION_BOUNDARY_WIDTH/2);
+                    Math.abs(r + VIA_THEME_REGION_BOUNDARY_WIDTH/2));
     _via_reg_ctx.stroke();
   }
 }
@@ -3090,16 +3113,16 @@ function get_region_bounding_box(region) {
     bbox[3] = maxy;
     break;
   case 'small_circle':
-    bbox[0] = d.get('cx') - VIA_REGION_SMALL_CIRCLE_RADIUS;
-    bbox[1] = d.get('cy') - VIA_REGION_SMALL_CIRCLE_RADIUS;
-    bbox[2] = d.get('cx') + VIA_REGION_SMALL_CIRCLE_RADIUS;
-    bbox[3] = d.get('cy') + VIA_REGION_SMALL_CIRCLE_RADIUS;
+    bbox[0] = d.get('cx') - VIA_REGION_SMALL_CIRCLE_RADIUS / _via_canvas_scale;
+    bbox[1] = d.get('cy') - VIA_REGION_SMALL_CIRCLE_RADIUS / _via_canvas_scale;
+    bbox[2] = d.get('cx') + VIA_REGION_SMALL_CIRCLE_RADIUS / _via_canvas_scale;
+    bbox[3] = d.get('cy') + VIA_REGION_SMALL_CIRCLE_RADIUS / _via_canvas_scale;
     break;
   case 'big_circle':
-    bbox[0] = d.get('cx') - VIA_REGION_BIG_CIRCLE_RADIUS;
-    bbox[1] = d.get('cy') - VIA_REGION_BIG_CIRCLE_RADIUS;
-    bbox[2] = d.get('cx') + VIA_REGION_BIG_CIRCLE_RADIUS;
-    bbox[3] = d.get('cy') + VIA_REGION_BIG_CIRCLE_RADIUS;
+    bbox[0] = d.get('cx') - VIA_REGION_BIG_CIRCLE_RADIUS / _via_canvas_scale;
+    bbox[1] = d.get('cy') - VIA_REGION_BIG_CIRCLE_RADIUS / _via_canvas_scale;
+    bbox[2] = d.get('cx') + VIA_REGION_BIG_CIRCLE_RADIUS / _via_canvas_scale;
+    bbox[3] = d.get('cy') + VIA_REGION_BIG_CIRCLE_RADIUS / _via_canvas_scale;
     break;
   }
   return bbox;
@@ -3135,6 +3158,10 @@ function is_inside_region(px, py, descending_order) {
   return -1;
 }
 function is_inside_this_region(px, py, region_id) {
+//debug_cql_9.15
+//console.log("region_id:"+region_id);
+//console.log("_via_canvas_regions.length:"+_via_canvas_regions.length);
+if(_via_canvas_regions.length>region_id){
   var attr   = _via_canvas_regions[region_id].shape_attributes;
   var result = false;
   switch ( attr.get('name') ) {
@@ -3164,17 +3191,31 @@ function is_inside_this_region(px, py, region_id) {
                                px, py);
     break;
   case VIA_REGION_SHAPE.POINT:
-    result = is_inside_point(attr.get('cx'),
-                             attr.get('cy'),
-                             px, py);
+    //result = is_inside_point(attr.get('cx'),
+    //                         attr.get('cy'),
+    //                         px, py);
+
+    result = is_inside_circle(attr.get('cx'),
+                              attr.get('cy'),
+                              VIA_REGION_SMALL_CIRCLE_RADIUS / _via_canvas_scale,
+                              px, py);
     break;
   case VIA_REGION_SHAPE.BIG_CIRCLE:
-    result = is_inside_point(attr.get('cx'),
-                             attr.get('cy'),
-                             px, py);
+    //result = is_inside_point(attr.get('cx'),
+    //                         attr.get('cy'),
+    //                         px, py);
+
+    result = is_inside_circle(attr.get('cx'),
+                          attr.get('cy'),
+                          VIA_REGION_BIG_CIRCLE_RADIUS / _via_canvas_scale,
+                          px, py);
     break;
   }
   return result;
+}else{
+	return 0;
+}
+  
 }
 function is_inside_circle(cx, cy, r, px, py) {
   var dx = px - cx;
@@ -3859,6 +3900,7 @@ function attr_input_blur(i) {
 // header is a Set()
 // data is an array of Map() objects
 function init_spreadsheet_input(type, col_headers, data, row_names) {
+
   if ( typeof row_names === 'undefined' ) {
     var row_names = [];
     for ( var i = 0; i < data.length; ++i ) {
@@ -3979,6 +4021,7 @@ function init_spreadsheet_input(type, col_headers, data, row_names) {
   }
   
   if (attrname == 'Region Attributes') {
+
         // if multiple regions are selected, show the selected regions first
     var sel_reg_list       = [];
     var remaining_reg_list = [];
@@ -4016,10 +4059,10 @@ function init_spreadsheet_input(type, col_headers, data, row_names) {
       region_id_cell.style.fontWeight = 'bold';
       region_id_cell.style.width      = '2em';
       var input_id = type[0] + '#' + key + '#' + rowi;
-		console.log("row_names[rowi]"+row_names[rowi]);
+		//console.log("row_names[rowi]"+row_names[rowi]);
       var list_selected = new Array(11);
       var r = _via_img_metadata[_via_image_id].regions[rowi].region_attributes;
-	  var opt_value;
+	    var opt_value;
 
 
     //if(di.size == 1){
@@ -4029,7 +4072,7 @@ function init_spreadsheet_input(type, col_headers, data, row_names) {
 	  	for (var key of r.keys()) {
 			opt_value = r.get(key);
 		}	 
-        console.log(opt_value);
+        //console.log(opt_value);
 
         for (var opts_index = 0; opts_index < attributes_list.length; opts_index++){
             //console.log(opt_value);
@@ -4040,11 +4083,17 @@ function init_spreadsheet_input(type, col_headers, data, row_names) {
             }
         }
     }
+
+	attr = _via_canvas_regions[i].shape_attributes;
+    //console.log(attr.get('name'));
+
+    switch ( attr.get('name') ) {
+    case VIA_REGION_SHAPE.BIG_CIRCLE:
     
       row.insertCell(-1).innerHTML = '<select onchange="update_attribute_value(\'' + input_id + '\', this.value)">' +
                                       '<option value="default"'+list_selected[0]+'>选择一个标签</option>' +
           '<option value="Fovea"' + list_selected[1] + '>Fovea</option>' +
-          '<option value="Macula"' + list_selected[2] + '>Macula</option>' + 
+          '<option value="Macula"' + list_selected[2] + ' selected="selected">Macula</option>' + 
           '<option value="OpticDisk"' + list_selected[9] + '>OpticDisk</option>' + 
                                       '<option value="Stage 1: demarcation line"'+list_selected[3]+'>Stage 1: demarcation line</option>' +
                                       '<option value="Stage 2: ridge"'+list_selected[4]+'>Stage 2: ridge</option>' +                                    
@@ -4056,6 +4105,67 @@ function init_spreadsheet_input(type, col_headers, data, row_names) {
                                       '<option value="proliferation"' + list_selected[11] + '>proliferation</option>' + 
                                       '<option value="Retina detachment"' + list_selected[12] + '>Retina detachment</option>' +
                                       '</select>';
+
+      if(r.size<1){
+        console.log(row);
+        var attr_id_split = input_id.split('#');
+        var type = attr_id_split[0];
+        var attribute_name = attr_id_split[1];
+        var region_id = attr_id_split[2];
+        var region = _via_img_metadata[_via_image_id].regions[region_id];
+        region.region_attributes.set(region_id, 'Macula');
+      }
+      break;
+
+    case VIA_REGION_SHAPE.POINT:
+    
+      row.insertCell(-1).innerHTML = '<select onchange="update_attribute_value(\'' + input_id + '\', this.value)">' +
+                                      '<option value="default"'+list_selected[0]+'>选择一个标签</option>' +
+          '<option value="Fovea"' + list_selected[1] + '>Fovea</option>' +
+          '<option value="Macula"' + list_selected[2] + '>Macula</option>' + 
+          '<option value="OpticDisk"' + list_selected[9] + ' selected="selected">OpticDisk</option>' + 
+                                      '<option value="Stage 1: demarcation line"'+list_selected[3]+'>Stage 1: demarcation line</option>' +
+                                      '<option value="Stage 2: ridge"'+list_selected[4]+'>Stage 2: ridge</option>' +                                    
+                                      '<option value="Stage 3: ridge with neovascularization"'+list_selected[5]+'>Stage 3: ridge with neovascularization</option>' + 
+                                      '<option value="bleeding"'+list_selected[6]+'>bleeding</option>' +
+                                      '<option value="artifact"'+list_selected[7]+'>artifact</option>' +
+                                      '<option value="carcinoma"' + list_selected[8] + '>carcinoma</option>' +
+                                      '<option value="Laser Photocoagulation Spot"' + list_selected[10] + '>Laser Photocoagulation Spot</option>' +
+                                      '<option value="proliferation"' + list_selected[11] + '>proliferation</option>' + 
+                                      '<option value="Retina detachment"' + list_selected[12] + '>Retina detachment</option>' +
+                                      '</select>';
+
+      
+      if(r.size<1){
+        console.log(row);
+        var attr_id_split = input_id.split('#');
+        var type = attr_id_split[0];
+        var attribute_name = attr_id_split[1];
+        var region_id = attr_id_split[2];
+        var region = _via_img_metadata[_via_image_id].regions[region_id];
+        region.region_attributes.set(region_id, 'OpticDisk');
+      }
+      break;
+
+    default: 
+
+      row.insertCell(-1).innerHTML = '<select onchange="update_attribute_value(\'' + input_id + '\', this.value)">' +
+                                  '<option value="default"'+list_selected[0]+'>选择一个标签</option>' +
+      '<option value="Fovea"' + list_selected[1] + '>Fovea</option>' +
+      '<option value="Macula"' + list_selected[2] + '>Macula</option>' + 
+      '<option value="OpticDisk"' + list_selected[9] + '>OpticDisk</option>' + 
+                                  '<option value="Stage 1: demarcation line"'+list_selected[3]+'>Stage 1: demarcation line</option>' +
+                                  '<option value="Stage 2: ridge"'+list_selected[4]+'>Stage 2: ridge</option>' +                                    
+                                  '<option value="Stage 3: ridge with neovascularization"'+list_selected[5]+'>Stage 3: ridge with neovascularization</option>' + 
+                                  '<option value="bleeding"'+list_selected[6]+'>bleeding</option>' +
+                                  '<option value="artifact"'+list_selected[7]+'>artifact</option>' +
+                                  '<option value="carcinoma"' + list_selected[8] + '>carcinoma</option>' +
+                                  '<option value="Laser Photocoagulation Spot"' + list_selected[10] + '>Laser Photocoagulation Spot</option>' +
+                                  '<option value="proliferation"' + list_selected[11] + '>proliferation</option>' + 
+                                  '<option value="Retina detachment"' + list_selected[12] + '>Retina detachment</option>' +
+                                  '</select>';       
+	}
+
       if (data[rowi].is_user_selected) {
         region_id_cell.style.backgroundColor = '#5599FF';
         row.style.backgroundColor = '#f2f2f2';
