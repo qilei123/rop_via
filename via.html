@@ -1623,11 +1623,11 @@ function show_image(image_index) {
 	  
 	  	  console.log("naturalWidth:"+VIA_REGION_SMALL_CIRCLE_RADIUS*_via_current_image.naturalWidth/1600);
 	  if(_via_current_image.naturalWidth<1000){
-		VIA_REGION_SMALL_CIRCLE_RADIUS  = VIA_REGION_SMALL_CIRCLE_RADIUS*_via_current_image.naturalWidth/1600+15;
-		VIA_REGION_BIG_CIRCLE_RADIUS = VIA_REGION_BIG_CIRCLE_RADIUS *_via_current_image.naturalWidth/1600+20;
+		VIA_REGION_SMALL_CIRCLE_RADIUS  = 60*_via_current_image.naturalWidth/1600+15;
+		VIA_REGION_BIG_CIRCLE_RADIUS = 80 *_via_current_image.naturalWidth/1600+20;
 	  }else{
-	  	VIA_REGION_SMALL_CIRCLE_RADIUS  = VIA_REGION_SMALL_CIRCLE_RADIUS*_via_current_image.naturalWidth/1600+15;
-		VIA_REGION_BIG_CIRCLE_RADIUS = VIA_REGION_BIG_CIRCLE_RADIUS *_via_current_image.naturalWidth/1600+20;
+	  	VIA_REGION_SMALL_CIRCLE_RADIUS  = 60*_via_current_image.naturalWidth/1600;
+		VIA_REGION_BIG_CIRCLE_RADIUS = 80 *_via_current_image.naturalWidth/1600;
 	  }
 	  
 	  //add by cql end
