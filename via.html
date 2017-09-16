@@ -1670,8 +1670,10 @@ function show_image(image_index) {
                              _via_canvas_width, _via_canvas_height);
 	
       // refresh the attributes panel
-      update_attributes_panel();
+      //fix bug by cql
       _via_load_canvas_regions(); // image to canvas space transform
+      update_attributes_panel();
+      //fix bug by cql
       _via_redraw_reg_canvas();
       _via_reg_canvas.focus();
       img_loading_spinbar(false);
@@ -4083,9 +4085,6 @@ function init_spreadsheet_input(type, col_headers, data, row_names) {
             }
         }
     }
-    //fix bug by cql start
-     _via_load_canvas_regions();	    
-    //fix bug by cql end
     attr = _via_canvas_regions[i].shape_attributes;
     //console.log(attr.get('name'));
 
