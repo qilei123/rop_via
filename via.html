@@ -4083,8 +4083,10 @@ function init_spreadsheet_input(type, col_headers, data, row_names) {
             }
         }
     }
-
-	attr = _via_canvas_regions[i].shape_attributes;
+    //fix bug by cql start
+     _via_load_canvas_regions();	    
+    //fix bug by cql end
+    attr = _via_canvas_regions[i].shape_attributes;
     //console.log(attr.get('name'));
 
     switch ( attr.get('name') ) {
