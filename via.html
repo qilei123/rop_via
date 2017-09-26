@@ -515,7 +515,7 @@
           </li>
           <li class="dropdown"><a onclick="show_about_panel()" title="Help">帮助 &#9662;</a>
             <div class="dropdown-content">
-                <a href="Annotate_Offline_Tool.docx">帮助文件</a>
+                <a href="tutorial.html" target="_blank">帮助文件</a>
               <a onclick="show_getting_started_panel()" title="Getting started with VGG Image Annotator (VIA)">Getting Started</a>
               <a onclick="show_license_panel()" title="VIA License">License</a>
               <a onclick="show_about_panel()" title="About VGG Image Annotator (VIA)">About</a>
@@ -975,7 +975,7 @@ function show_home_panel() {
     show_all_canvas();
     set_all_text_panel_display('none');
   } else {
-    var start_info = '<p><a title="Load or Add Images" style="cursor: pointer; color: blue;" onclick="sel_local_images()">加载图片</a>，开始标注。打开<a title="Getting started with VGG Image Annotator" style="cursor: pointer; color: blue;" href="Annotate_Offline_Tool.docx">帮助文件</a>.</p>';
+    var start_info = '<p><a title="Load or Add Images" style="cursor: pointer; color: blue;" onclick="sel_local_images()">加载图片</a>，开始标注。打开<a title="Getting started with VGG Image Annotator" style="cursor: pointer; color: blue;" href="tutorial.html" target="_blank">帮助文件</a>.</p>';
     clear_image_display_area();
     document.getElementById('via_start_info_panel').innerHTML = start_info;
     document.getElementById('via_start_info_panel').style.display = 'block';
