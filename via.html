@@ -1689,9 +1689,12 @@ function show_image(image_index) {
     });
     _via_current_image.src = img_reader.result;
   }, false);
+  //cql
+  //_via_img_metadata[img_id].base64_img_data = 'https://i.ytimg.com/vi/SfLV8hD7zX4/maxresdefault.jpg'
   if (_via_img_metadata[img_id].base64_img_data === '') {
     // load image from file
     img_reader.readAsDataURL( _via_img_metadata[img_id].fileref );
+    console.log('_via_img_metadata[img_id].fileref:'+_via_img_metadata[img_id].fileref)
   } else {
     // load image from base64 data or URL
     img_reader.readAsText( new Blob([_via_img_metadata[img_id].base64_img_data]) );
